@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Form</title>
+</head>
+<body>
+    <h1>Search Form</h1>
+    <form id="searchForm">
+        <label for="searchInput">Enter Filename:</label>
+        <input type="text" id="searchInput" name="searchInput">
+        <button type="submit">Search</button>
+    </form>
+    <div id="searchResults">
+        <!-- Search results will be displayed here -->
+    </div>
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission behavior
+
+            const searchValue = document.getElementById('searchInput').value;
+
+            // Perform fetch to the endpoint with the search value as a parameter
+            fetch(`http://192.168.132.129:3000/data/filename/${searchValue}`)
+                .then(response => response.json())
+                .then(data => {
+                    const searchResultsDiv = document.getElementById('searchResults');
+                    searchResultsDiv.innerHTML = ''; // Clear previous search results
+
+                    if (data.length === 0) {
+                        searchResultsDiv.innerHTML = 'No results found.';
+                        return;
+                    }
+
+                    // Create a table to display the search results
+                    const table = document.createElement('table');
+                    const tableHead = document.createElement('thead');
+                    const tableBody = document.createElement('tbody');
+
+                    // Create table headers
+                    const headers = Object.keys(data[0]);
+                    const headerRow = document.createElement('tr');
+                    headers.forEach(header => {
+                        const th = document.createElement('th');
+                        th.textContent = header;
+                        headerRow.appendChild(th);
+                    });
+                    tableHead.appendChild(headerRow);
+                    table.appendChild(tableHead);
+
+                    // Populate table with search results
+                    data.forEach(row => {
+                        const rowElement = document.createElement('tr');
+                        Object.values(row).forEach(value => {
+                            const cell = document.createElement('td');
+                            cell.textContent = value;
+                            rowElement.appendChild(cell);
+                        });
+                        tableBody.appendChild(rowElement);
+                    });
+                    table.appendChild(tableBody);
+                    searchResultsDiv.appendChild(table);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        });
+    </script>
+</body>
+</html>
+
