@@ -2,8 +2,8 @@
 
 # Array of folders to enumerate
 folders=(
-	"/usr/bin"
-	"/etc"
+    "/usr/bin"
+    "/etc"
 )
 
 # Output file
@@ -37,15 +37,17 @@ for folder in "${folders[@]}"; do
             # Get filepath
             filepath="$file"
             # Store file information in array
-            file_info+=("{\"timestamp\": \"$timestamp\", \"name\": \"$(hostname)\", \"md5sum\": \"$md5\", \"filename\": \"$filename\", \"filepath\": \"$filepath\"}, ")
+            file_info+=("{\"timestamp\": \"$timestamp\", \"name\": \"$(hostname)\", \"md5sum\": \"$md5\", \"filename\": \"$filename\", \"filepath\": \"$filepath\"},")
         done < <(find "$folder" -type f -print0)
     else
         echo "Folder $folder does not exist."
     fi
 done
 
+# Remove the last comma from the last element
+file_info[-1]=${file_info[-1]%?}
+
 file_info+=(']')
 
 # Output file information to JSON file
 printf "%s\n" "${file_info[@]}" > "$output_file"
-
